@@ -8,5 +8,13 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
+  server: {
+    allowedHosts: [
+      'tank-vigorous-cargo.ngrok-free.dev',
+      '.ngrok-free.dev',
+      '.ngrok-free.app',
+      '.ngrok.io',
+    ],
+  },
 })
 

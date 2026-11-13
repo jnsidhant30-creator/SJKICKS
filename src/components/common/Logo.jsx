@@ -6,11 +6,11 @@ export function Logo({ className = '', inverted = false }) {
   return (
     <Link
       to="/"
-      className={`inline-flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 ${className}`}
+      className={`inline-flex items-center gap-2.5 sm:gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 shrink-0 py-1 ${className}`}
       aria-label={`${BRAND_CONFIG.name} Home`}
     >
       {/* Editorial Luxury Monogram Emblem */}
-      <div className="relative w-8 h-8 flex items-center justify-center shrink-0">
+      <div className="relative w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center shrink-0">
         <svg
           viewBox="0 0 36 36"
           fill="none"
@@ -45,20 +45,20 @@ export function Logo({ className = '', inverted = false }) {
         </svg>
       </div>
 
-      <div className="flex flex-col leading-none select-none">
+      <div className="flex flex-col justify-center leading-none select-none min-w-0">
         <span
-          className={`font-display text-xl sm:text-2xl font-black tracking-widest ${
+          className={`font-display text-lg sm:text-xl lg:text-2xl font-black tracking-widest leading-none ${
             inverted ? 'text-white' : 'text-neutral-950'
           }`}
         >
           {BRAND_CONFIG.name}
         </span>
         <span
-          className={`text-[8px] font-bold tracking-[0.28em] uppercase -mt-0.5 ${
+          className={`text-[7px] sm:text-[7.5px] lg:text-[8px] font-bold tracking-[0.18em] sm:tracking-[0.22em] uppercase mt-1 leading-none whitespace-nowrap ${
             inverted ? 'text-neutral-400' : 'text-neutral-500'
           }`}
         >
-          {BRAND_CONFIG.tagline.split('•')[0].trim()}
+          {BRAND_CONFIG.tagline}
         </span>
       </div>
     </Link>

@@ -3,16 +3,17 @@ import { getFromStorage, setToStorage, STORAGE_KEYS } from '../utils/storage';
 import { calculateOrderTotals } from '../utils/formatters';
 import { PROMO_CODES } from '../data/products';
 import { useToast } from './ToastContext';
+import { reconcileCart, getLocalCatalog } from '../utils/cartReconciliation';
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const { showToast } = useToast();
 
-  // Load initial cart safely
+  // Load initial cart safely with catalog reconciliation
   const [cart, setCart] = useState(() => {
     const saved = getFromStorage(STORAGE_KEYS.CART, []);
-    return Array.isArray(saved) ? saved : [];
+    return reconcileCart(saved);
   });
 
   // Load wishlist safely
@@ -75,6 +76,8 @@ export function CartProvider({ children }) {
   }, [cart]);
 
   // Cart operations
+  // Note: Client-side stock capping prevents accidental UI over-ordering,
+  // but trusted server/database validation during checkout is required for atomic concurrency.
   const addToCart = (product, selectedSize, selectedColor, quantity = 1) => {
     if (!product) return false;
 
@@ -96,17 +99,49 @@ export function CartProvider({ children }) {
       }
     }
 
+    // Determine variant and available stock
+    // Policy: missing variant or invalid stock count is treated as 0 (unavailable/safe boundary)
+    const variant = product.sizes?.find((s) => s.size === finalSize);
+    const availableStock =
+      variant && typeof variant.stock === 'number' && !isNaN(variant.stock)
+        ? Math.max(0, variant.stock)
+        : 0;
+
+    if (availableStock <= 0) {
+      showToast(`${product.name} (${finalSize}) is currently out of stock`, 'error');
+      return false;
+    }
+
+    const requestedQty = Math.floor(Number(quantity));
+    if (isNaN(requestedQty) || requestedQty <= 0) {
+      return false;
+    }
+
     const finalColor = selectedColor || product.colors?.[0] || { name: 'Standard' };
     const cartItemId = `${product.id}__${finalSize}__${finalColor.name}`;
+
+    const existingItem = cart.find((item) => item.cartItemId === cartItemId);
+    const currentQtyInCart = existingItem ? existingItem.quantity : 0;
+
+    if (currentQtyInCart >= availableStock) {
+      showToast(`Cannot add more. You have all ${availableStock} available units in your bag.`, 'error');
+      return false;
+    }
+
+    const allowedAddQty = Math.min(requestedQty, availableStock - currentQtyInCart);
 
     setCart((prevCart) => {
       const existingIndex = prevCart.findIndex((item) => item.cartItemId === cartItemId);
 
       if (existingIndex > -1) {
-        // Increment quantity
         const updated = [...prevCart];
-        const newQty = updated[existingIndex].quantity + quantity;
-        updated[existingIndex] = { ...updated[existingIndex], quantity: newQty };
+        const prevQty = updated[existingIndex].quantity;
+        const clampedQty = Math.min(availableStock, prevQty + allowedAddQty);
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          quantity: clampedQty,
+          maxStock: availableStock,
+        };
         return updated;
       }
 
@@ -117,45 +152,75 @@ export function CartProvider({ children }) {
           cartItemId,
           productId: product.id,
           name: product.name,
-          tagline: product.tagline,
-          price: product.price,
-          originalPrice: product.originalPrice,
+          tagline: product.tagline || '',
+          price: Number(product.price) || 0,
+          originalPrice: product.originalPrice ? Number(product.originalPrice) : null,
           image: product.images?.[0] || '',
           size: finalSize,
           color: finalColor,
           category: product.category,
-          subcategory: product.subcategory,
-          audience: product.audience || product.gender,
-          quantity: Math.max(1, quantity),
+          subcategory: product.subcategory || '',
+          audience: product.audience || product.gender || 'Unisex',
+          quantity: allowedAddQty,
+          maxStock: availableStock,
         },
       ];
     });
 
-    showToast(`Added ${product.name} (${finalSize}) to Bag`, 'success');
+    if (allowedAddQty < requestedQty) {
+      showToast(`Added ${allowedAddQty} unit(s). Maximum available stock of ${availableStock} reached.`, 'info');
+    } else {
+      showToast(`Added ${product.name} (${finalSize}) to Bag`, 'success');
+    }
     return true;
   };
 
   const updateQuantity = (cartItemId, newQuantity) => {
-    if (newQuantity <= 0) {
+    const requestedQty = Math.floor(Number(newQuantity));
+    if (isNaN(requestedQty) || requestedQty <= 0) {
       removeFromCart(cartItemId);
       return;
     }
 
+    const item = cart.find((i) => i.cartItemId === cartItemId);
+    if (!item) return;
+
+    // Look up stock from current catalog
+    const catalog = getLocalCatalog();
+    const product = catalog.find((p) => p.id === item.productId);
+    const variant = product?.sizes?.find((s) => s.size === item.size);
+    const availableStock =
+      variant && typeof variant.stock === 'number' && !isNaN(variant.stock)
+        ? Math.max(0, variant.stock)
+        : (typeof item.maxStock === 'number' ? item.maxStock : 0);
+
+    if (availableStock <= 0) {
+      removeFromCart(cartItemId);
+      showToast(`${item.name} (${item.size}) is no longer in stock`, 'error');
+      return;
+    }
+
+    const clampedQty = Math.min(requestedQty, availableStock);
+    if (requestedQty > availableStock) {
+      showToast(`Only ${availableStock} units available for ${item.name} (${item.size})`, 'info');
+    }
+
     setCart((prev) =>
-      prev.map((item) =>
-        item.cartItemId === cartItemId ? { ...item, quantity: Math.min(10, newQuantity) } : item
+      prev.map((i) =>
+        i.cartItemId === cartItemId
+          ? { ...i, quantity: clampedQty, maxStock: availableStock }
+          : i
       )
     );
   };
 
+  // Pure state updater without cross-component state updates inside updater callbacks
   const removeFromCart = (cartItemId) => {
-    setCart((prev) => {
-      const itemToRemove = prev.find((i) => i.cartItemId === cartItemId);
-      if (itemToRemove) {
-        showToast(`Removed ${itemToRemove.name} from Bag`, 'info');
-      }
-      return prev.filter((i) => i.cartItemId !== cartItemId);
-    });
+    const itemToRemove = cart.find((i) => i.cartItemId === cartItemId);
+    if (!itemToRemove) return;
+
+    setCart((prev) => prev.filter((i) => i.cartItemId !== cartItemId));
+    showToast(`Removed ${itemToRemove.name} from Bag`, 'info');
   };
 
   const clearCart = () => {
@@ -197,16 +262,15 @@ export function CartProvider({ children }) {
   // Wishlist operations
   const toggleWishlist = (product) => {
     if (!product) return;
-    setWishlist((prev) => {
-      const exists = prev.some((p) => p.id === product.id);
-      if (exists) {
-        showToast(`Removed from Wishlist`, 'info');
-        return prev.filter((p) => p.id !== product.id);
-      } else {
-        showToast(`Saved to Wishlist`, 'success');
-        return [...prev, product];
-      }
-    });
+    const exists = wishlist.some((p) => p.id === product.id);
+    setWishlist((prev) =>
+      exists ? prev.filter((p) => p.id !== product.id) : [...prev, product]
+    );
+    if (exists) {
+      showToast('Removed from Wishlist', 'info');
+    } else {
+      showToast('Saved to Wishlist', 'success');
+    }
   };
 
   const isInWishlist = (productId) => {

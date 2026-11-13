@@ -219,11 +219,11 @@ export function AdminPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 animate-fade-in">
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-neutral-200">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-neutral-950 text-amber-400 font-display text-[10px] font-bold uppercase tracking-widest mb-1">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-neutral-950 text-amber-400 font-display text-[10px] font-bold uppercase tracking-widest mb-1 shadow-2xs">
             <Shield className="w-3.5 h-3.5" />
             <span>Studio Atelier Management</span>
           </div>
@@ -238,13 +238,13 @@ export function AdminPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={openCreateModal}
-            className="px-4 py-2.5 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-neutral-800 transition-colors"
+            className="px-4 py-2.5 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-neutral-800 transition-all btn-magnetic shadow-md cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add Product
           </button>
           <Link
             to="/shop"
-            className="px-4 py-2.5 bg-white border border-neutral-300 text-neutral-900 font-display text-xs font-bold uppercase tracking-wider hover:border-neutral-950"
+            className="px-4 py-2.5 bg-white border border-neutral-300 text-neutral-900 font-display text-xs font-bold uppercase tracking-wider hover:border-neutral-950 transition-all btn-magnetic"
           >
             View Live Store →
           </Link>

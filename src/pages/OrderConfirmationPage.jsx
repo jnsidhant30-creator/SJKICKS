@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   CheckCircle2,
@@ -6,13 +6,13 @@ import {
   Printer,
   Package,
   Calendar,
-  Truck,
   MapPin,
   CreditCard,
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
 import { useOrders } from '../hooks/useOrders';
+import { useAuth } from '../context/AuthContext';
 import { formatINR } from '../utils/formatters';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
 import { useToast } from '../context/ToastContext';
@@ -21,11 +21,51 @@ export function OrderConfirmationPage() {
   const location = useLocation();
   const { showToast } = useToast();
   const { lastOrder, getOrderById } = useOrders();
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
 
-  // Get order from location state or fallback to lastOrder
+  // Validate ownership of lastOrder:
+  // - If logged in: lastOrder must belong to the active user.
+  // - If guest: lastOrder must be a guest order (cannot view authenticated orders).
+  const isLastOrderOwned = Boolean(
+    lastOrder &&
+      (user?.id
+        ? lastOrder.userId === user.id
+        : !lastOrder.userId || lastOrder.userId === 'demo_guest')
+  );
+  const authorizedLastOrder = isLastOrderOwned ? lastOrder : null;
+
+  // Get order and guest token from location state or fallback to authorized lastOrder
   const passedOrderId = location.state?.orderId;
-  const order = passedOrderId ? getOrderById(passedOrderId) : lastOrder;
+  const passedGuestToken = location.state?.guestAccessToken || authorizedLastOrder?.guestAccessToken || null;
+  const [resolvedOrder, setResolvedOrder] = useState(
+    passedOrderId && authorizedLastOrder?.orderId === passedOrderId
+      ? authorizedLastOrder
+      : !passedOrderId
+      ? authorizedLastOrder
+      : null
+  );
+  const [isLoadingOrder, setIsLoadingOrder] = useState(
+    Boolean(passedOrderId && (!authorizedLastOrder || authorizedLastOrder.orderId !== passedOrderId))
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    if (passedOrderId && (!authorizedLastOrder || authorizedLastOrder.orderId !== passedOrderId)) {
+      Promise.resolve(getOrderById(passedOrderId, passedGuestToken)).then((res) => {
+        if (mounted) {
+          setResolvedOrder(res);
+          setIsLoadingOrder(false);
+        }
+      });
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [passedOrderId, passedGuestToken, authorizedLastOrder, getOrderById]);
+
+  const order = resolvedOrder;
 
   const handleCopyOrderId = () => {
     if (order?.orderId) {
@@ -40,6 +80,17 @@ export function OrderConfirmationPage() {
     window.print();
   };
 
+  if (isLoadingOrder) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div className="w-12 h-12 border-4 border-neutral-900 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <h2 className="font-display text-xl font-bold uppercase text-neutral-900">
+          Loading Official Order Details...
+        </h2>
+      </div>
+    );
+  }
+
   if (!order) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
@@ -50,7 +101,7 @@ export function OrderConfirmationPage() {
           No Recent Order Found
         </h1>
         <p className="text-xs text-neutral-500 mb-6">
-          You don't have any recent order stored in this browser session. Browse our collection to make a purchase.
+          You don't have access to this order, or it does not exist in your account. Browse our collection to make a purchase.
         </p>
         <Link
           to="/shop"
@@ -73,15 +124,15 @@ export function OrderConfirmationPage() {
   } = order;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 animate-fade-in">
       {/* Success Celebration Banner */}
       <div className="text-center space-y-4 pb-8 border-b border-neutral-200">
-        <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs">
+        <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs animate-scale-bounce">
           <CheckCircle2 className="w-10 h-10" />
         </div>
 
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-neutral-950 text-amber-400 font-display text-[11px] font-bold uppercase tracking-widest">
-          <Sparkles className="w-3.5 h-3.5" /> Simulated Demo Order Confirmed
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-neutral-950 text-amber-400 font-display text-[11px] font-bold uppercase tracking-widest shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Simulated Demo Order Confirmed
         </span>
 
         <h1 className="font-display text-4xl sm:text-5xl font-black uppercase tracking-tight text-neutral-950">
@@ -101,7 +152,11 @@ export function OrderConfirmationPage() {
               className="text-neutral-500 hover:text-neutral-900 transition-colors p-1"
               title="Copy Order ID"
             >
-              <Copy className="w-3.5 h-3.5" />
+              {copied ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
             </button>
           </div>
 
@@ -264,8 +319,8 @@ export function OrderConfirmationPage() {
         </h3>
 
         <div className="divide-y divide-neutral-200">
-          {items.map((item) => (
-            <div key={item.cartItemId} className="py-4 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
+          {items.map((item, idx) => (
+            <div key={item.cartItemId || `${item.productId || 'item'}-${item.size || ''}-${idx}`} className="py-4 flex items-center justify-between gap-4 first:pt-0 last:pb-0">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-neutral-100 shrink-0 border border-neutral-200 overflow-hidden">
                   <ImageWithFallback

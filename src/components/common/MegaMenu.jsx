@@ -8,10 +8,8 @@ export function MegaMenu({ activeKey, onClose }) {
 
   // Determine category content
   let categoryInfo = null;
-  let audiencePreset = null;
 
   if (activeKey === 'men') {
-    audiencePreset = 'Men';
     categoryInfo = {
       title: "Men's Collection",
       tagline: 'High-Performance Tailoring & Footwear for Men',
@@ -49,7 +47,6 @@ export function MegaMenu({ activeKey, onClose }) {
       ],
     };
   } else if (activeKey === 'women') {
-    audiencePreset = 'Women';
     categoryInfo = {
       title: "Women's Collection",
       tagline: 'Sculpted Silhouettes, Engineered Knits & Modern Accessories',
@@ -150,7 +147,7 @@ export function MegaMenu({ activeKey, onClose }) {
                       <Link
                         to={link.path}
                         onClick={onClose}
-                        className="text-neutral-600 hover:text-neutral-950 font-medium transition-colors block py-0.5"
+                        className="text-neutral-600 hover:text-neutral-950 font-medium transition-all block py-0.5 hover:translate-x-1"
                       >
                         {link.label}
                       </Link>

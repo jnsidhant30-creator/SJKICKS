@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, ChevronDown, ChevronRight, User, Heart, ShoppingBag, Search, Shield, Sparkles } from 'lucide-react';
 import { Logo } from './Logo';
-import { CATEGORIES_DATA, AUDIENCES } from '../../data/categories';
+import { CATEGORIES_DATA } from '../../data/categories';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { BRAND_CONFIG } from '../../config/brand';
@@ -54,7 +54,7 @@ export function MobileDrawer({ isOpen, onClose }) {
         className="fixed inset-y-0 left-0 max-w-full flex pr-10"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-screen max-w-sm bg-white shadow-2xl flex flex-col justify-between overflow-y-auto animate-slide-in">
+        <div className="w-screen max-w-sm bg-white shadow-2xl flex flex-col justify-between overflow-y-auto animate-slide-in-left">
           {/* Top Header */}
           <div>
             <div className="p-4 border-b border-neutral-200 flex items-center justify-between bg-neutral-50">
@@ -62,7 +62,7 @@ export function MobileDrawer({ isOpen, onClose }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 text-neutral-500 hover:text-neutral-950 focus:outline-none"
+                className="p-2 text-neutral-500 hover:text-neutral-950 focus:outline-none transition-transform active:scale-95"
                 aria-label="Close navigation menu"
               >
                 <X className="w-5 h-5" />
@@ -77,7 +77,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                   placeholder="Search collections, sneakers, coats..."
                   value={searchVal}
                   onChange={(e) => setSearchVal(e.target.value)}
-                  className="w-full bg-neutral-100 pl-9 pr-3 py-2 text-xs font-medium text-neutral-900 placeholder-neutral-500 border border-transparent focus:border-neutral-900 focus:outline-none"
+                  className="w-full bg-neutral-100 pl-9 pr-3 py-2 text-xs font-medium text-neutral-900 placeholder-neutral-500 border border-transparent focus:border-neutral-900 focus:outline-none transition-colors"
                 />
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-2.5" />
               </div>
@@ -89,7 +89,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                 <button
                   key={aud}
                   onClick={() => setActiveAudience(aud)}
-                  className={`py-3 transition-colors ${
+                  className={`py-3 transition-all cursor-pointer ${
                     activeAudience === aud
                       ? 'bg-neutral-950 text-white shadow-xs'
                       : 'text-neutral-600 hover:text-neutral-950'
@@ -106,7 +106,7 @@ export function MobileDrawer({ isOpen, onClose }) {
               <Link
                 to="/"
                 onClick={onClose}
-                className="flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display"
+                className="flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display transition-colors"
               >
                 <span>Home</span>
               </Link>
@@ -115,7 +115,7 @@ export function MobileDrawer({ isOpen, onClose }) {
               <Link
                 to="/men"
                 onClick={onClose}
-                className="flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display"
+                className="flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display transition-colors"
               >
                 <span>Men's Atelier</span>
                 <ChevronRight className="w-4 h-4 text-neutral-400" />
@@ -124,7 +124,7 @@ export function MobileDrawer({ isOpen, onClose }) {
               <Link
                 to="/women"
                 onClick={onClose}
-                className="flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display"
+                className="flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display transition-colors"
               >
                 <span>Women's Atelier</span>
                 <ChevronRight className="w-4 h-4 text-neutral-400" />
@@ -141,7 +141,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleCategory(cat.slug)}
-                      className="w-full flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display"
+                      className="w-full flex items-center justify-between py-2.5 px-3 text-xs font-bold uppercase tracking-widest text-neutral-900 hover:bg-neutral-100 font-display transition-colors cursor-pointer"
                     >
                       <span>{cat.name}</span>
                       <ChevronDown
@@ -156,7 +156,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                         <Link
                           to={`${cat.path}?${audienceParam.replace('&', '')}`}
                           onClick={onClose}
-                          className="block py-1.5 text-xs font-bold text-neutral-950 font-display uppercase tracking-wider"
+                          className="block py-1.5 text-xs font-bold text-neutral-950 font-display uppercase tracking-wider hover:text-amber-600 transition-colors"
                         >
                           All {cat.name} →
                         </Link>
@@ -167,7 +167,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                               sub.slug
                             )}${audienceParam}`}
                             onClick={onClose}
-                            className="block py-1 text-xs text-neutral-600 hover:text-neutral-950"
+                            className="block py-1 text-xs text-neutral-600 hover:text-neutral-950 transition-colors"
                           >
                             {sub.name}
                           </Link>
@@ -183,7 +183,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                 <Link
                   to="/shop?filter=new"
                   onClick={onClose}
-                  className="flex items-center gap-2 py-2 px-3 text-xs font-bold uppercase tracking-wider text-neutral-900 hover:bg-neutral-100 font-display"
+                  className="flex items-center gap-2 py-2 px-3 text-xs font-bold uppercase tracking-wider text-neutral-900 hover:bg-neutral-100 font-display transition-colors"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                   <span>New Arrivals</span>
@@ -192,7 +192,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                 <Link
                   to="/shop?filter=bestseller"
                   onClick={onClose}
-                  className="flex items-center gap-2 py-2 px-3 text-xs font-bold uppercase tracking-wider text-neutral-900 hover:bg-neutral-100 font-display"
+                  className="flex items-center gap-2 py-2 px-3 text-xs font-bold uppercase tracking-wider text-neutral-900 hover:bg-neutral-100 font-display transition-colors"
                 >
                   <span>Bestsellers</span>
                 </Link>
@@ -200,7 +200,7 @@ export function MobileDrawer({ isOpen, onClose }) {
                 <Link
                   to="/shop?filter=sale"
                   onClick={onClose}
-                  className="flex items-center gap-2 py-2 px-3 text-xs font-bold uppercase tracking-wider text-amber-600 hover:bg-amber-50 font-display"
+                  className="flex items-center gap-2 py-2 px-3 text-xs font-bold uppercase tracking-wider text-amber-600 hover:bg-amber-50 font-display transition-colors"
                 >
                   <span>Seasonal Sale</span>
                 </Link>
@@ -210,28 +210,37 @@ export function MobileDrawer({ isOpen, onClose }) {
 
           {/* Bottom Utility Bar (Account, Wishlist, Bag, Admin) */}
           <div className="p-4 border-t border-neutral-200 bg-neutral-50 space-y-3">
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-2 text-xs">
               <Link
                 to="/account"
                 onClick={onClose}
-                className="flex items-center gap-2 p-2.5 bg-white border border-neutral-200 text-neutral-900 font-display font-bold uppercase tracking-wider hover:border-neutral-900"
+                className="flex items-center justify-center gap-1.5 p-2.5 bg-white border border-neutral-200 text-neutral-900 font-display font-bold uppercase tracking-wider hover:border-neutral-900 transition-colors shadow-2xs"
               >
                 <User className="w-4 h-4 text-neutral-500" />
-                <span>{user ? user.fullName.split(' ')[0] : 'Account'}</span>
+                <span className="truncate">{user ? user.fullName.split(' ')[0] : 'Account'}</span>
+              </Link>
+
+              <Link
+                to="/wishlist"
+                onClick={onClose}
+                className="flex items-center justify-center gap-1.5 p-2.5 bg-white border border-neutral-200 text-neutral-900 font-display font-bold uppercase tracking-wider hover:border-neutral-900 transition-colors shadow-2xs relative"
+              >
+                <Heart className="w-4 h-4 text-rose-500" />
+                <span>Vault</span>
+                {wishlist.length > 0 && (
+                  <span className="bg-neutral-900 text-white text-[9px] px-1 font-bold rounded-full">
+                    {wishlist.length}
+                  </span>
+                )}
               </Link>
 
               <Link
                 to="/cart"
                 onClick={onClose}
-                className="flex items-center justify-between p-2.5 bg-neutral-950 text-white font-display font-bold uppercase tracking-wider"
+                className="flex items-center justify-center gap-1.5 p-2.5 bg-neutral-950 text-white font-display font-bold uppercase tracking-wider transition-colors shadow-xs"
               >
-                <div className="flex items-center gap-2">
-                  <ShoppingBag className="w-4 h-4 text-amber-400" />
-                  <span>Bag</span>
-                </div>
-                <span className="bg-white text-neutral-950 text-[10px] px-1.5 py-0.2 font-black rounded-full">
-                  {cartCount}
-                </span>
+                <ShoppingBag className="w-4 h-4 text-amber-400" />
+                <span>Bag ({cartCount})</span>
               </Link>
             </div>
 
@@ -239,7 +248,7 @@ export function MobileDrawer({ isOpen, onClose }) {
               <Link
                 to="/admin"
                 onClick={onClose}
-                className="flex items-center justify-center gap-2 w-full py-2 bg-neutral-900 text-amber-400 text-xs font-display font-bold uppercase tracking-wider"
+                className="flex items-center justify-center gap-2 w-full py-2 bg-neutral-900 text-amber-400 text-xs font-display font-bold uppercase tracking-wider hover:bg-black transition-colors"
               >
                 <Shield className="w-3.5 h-3.5" />
                 <span>Admin Studio Portal</span>

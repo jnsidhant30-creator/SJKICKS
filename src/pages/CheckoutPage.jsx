@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useOrders } from '../hooks/useOrders';
+import { useAuth } from '../context/AuthContext';
 import { formatINR } from '../utils/formatters';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
 import { useToast } from '../context/ToastContext';
@@ -52,19 +53,28 @@ export function CheckoutPage() {
   const { showToast } = useToast();
   const { cart, totals, activePromo, clearCart } = useCart();
   const { createOrder } = useOrders();
+  const { user } = useAuth();
+  const [idempotencyKey] = useState(() => {
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      return 'idem-' + Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    }
+    return `idem-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 12)}`;
+  });
 
   // Address Form State
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
+  const [formData, setFormData] = useState(() => ({
+    fullName: user?.fullName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
     pincode: '',
     addressLine1: '',
     area: '',
     landmark: '',
     city: '',
     state: 'Karnataka',
-  });
+  }));
 
   const [formErrors, setFormErrors] = useState({});
   const [paymentMethod, setPaymentMethod] = useState('UPI'); // 'UPI' | 'COD' | 'CARD' | 'NETBANKING'
@@ -181,31 +191,34 @@ export function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // Simulate network latency (800ms)
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      const newOrder = createOrder({
+      const newOrder = await createOrder({
+        idempotencyKey,
         items: cart,
         shippingAddress: formData,
         paymentMethod: paymentMethod,
-        totals: totals,
         activePromo: activePromo,
       });
 
-      // Clear cart
+      // Cart is cleared ONLY after confirmed success!
       clearCart();
 
       showToast(`Order ${newOrder.orderId} placed successfully!`, 'success');
-      navigate('/order-confirmation', { state: { orderId: newOrder.orderId } });
+      navigate('/order-confirmation', {
+        state: {
+          orderId: newOrder.orderId,
+          guestAccessToken: newOrder.guestAccessToken || null,
+        },
+      });
     } catch (err) {
       console.error('Order creation error:', err);
-      showToast('Something went wrong placing the demo order.', 'error');
+      // Cart is PRESERVED on failure!
+      showToast(err.message || 'Something went wrong placing the order.', 'error');
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 animate-fade-in">
       {/* Editorial Title & Demomode Warning Banner */}
       <div className="pb-6 border-b border-neutral-200">
         <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-display">
@@ -217,7 +230,7 @@ export function CheckoutPage() {
       </div>
 
       {/* Safety Notice: Zero Real Payments */}
-      <div className="mt-6 p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-xs flex items-start gap-3">
+      <div className="mt-6 p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-xs flex items-start gap-3 shadow-xs">
         <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
         <div className="leading-relaxed">
           <strong className="font-bold uppercase tracking-wider block font-display">
@@ -616,7 +629,7 @@ export function CheckoutPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-4 text-white font-display text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl transition-all duration-200 ${
+              className={`w-full py-4 text-white font-display text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl transition-all duration-200 btn-magnetic cursor-pointer ${
                 isSubmitting
                   ? 'bg-neutral-600 cursor-wait'
                   : 'bg-neutral-950 hover:bg-neutral-800 active:scale-[0.99]'

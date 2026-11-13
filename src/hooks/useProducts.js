@@ -22,11 +22,16 @@ export function useProducts(initialFilter = {}) {
   // Load from Supabase service (or local custom overrides)
   useEffect(() => {
     let mounted = true;
-    getProducts().then((res) => {
-      if (mounted && Array.isArray(res) && res.length > 0) {
-        setAllProducts(res);
-      }
-    });
+    setLoading(true);
+    getProducts()
+      .then((res) => {
+        if (mounted && Array.isArray(res) && res.length > 0) {
+          setAllProducts(res);
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
     return () => {
       mounted = false;
     };

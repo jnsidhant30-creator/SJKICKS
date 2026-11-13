@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Package, Heart, LogOut, Shield, CheckCircle2, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Package, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../hooks/useOrders';
 import { useCart } from '../context/CartContext';
 import { formatINR } from '../utils/formatters';
 
 export function AccountPage() {
-  const navigate = useNavigate();
   const { user, isAdmin, login, signup, logout, loginAsDemoAdmin, loginAsDemoCustomer } = useAuth();
   const { orders } = useOrders();
   const { wishlist } = useCart();
@@ -32,8 +31,8 @@ export function AccountPage() {
   // If user is not authenticated, show elegant sign-in / demo switches
   if (!user) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 sm:py-24">
-        <div className="bg-white border border-neutral-200 p-8 shadow-xl">
+      <div className="max-w-md mx-auto px-4 py-16 sm:py-24 animate-fade-in">
+        <div className="bg-white border border-neutral-200 p-8 shadow-xl card-lift">
           <div className="text-center mb-8">
             <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 font-display">
               Client Concierge
@@ -141,7 +140,7 @@ export function AccountPage() {
 
   // Authenticated Profile View
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 animate-fade-in">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-neutral-200">
         <div>

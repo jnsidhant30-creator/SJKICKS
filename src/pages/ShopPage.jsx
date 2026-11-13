@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, RotateCcw, Frown, Check, ArrowDown } from 'lucide-react';
+import { Search, SlidersHorizontal, X, RotateCcw, Frown, Check, ArrowDown, Sparkles } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { CATEGORIES_DATA } from '../data/categories';
 import { AUDIENCE_LIST, SORT_OPTIONS } from '../data/products';
@@ -81,7 +81,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
     if (forcedAudience && forcedAudience !== audience) {
       setAudience(forcedAudience);
     }
-  }, [forcedCategory, forcedAudience]);
+  }, [forcedCategory, forcedAudience, category, audience, setCategory, setAudience]);
 
   // Find active category data to compute available subcategories and sizes
   const activeCategoryData = useMemo(() => {
@@ -119,11 +119,12 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
   }, [forcedAudience, forcedCategory, category, audience]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 animate-fade-in">
       {/* Top Header & Search Controls */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-neutral-200">
         <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-display">
+          <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-display flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             The Complete Atelier
           </span>
           <h1 className="font-display text-4xl sm:text-5xl font-black uppercase tracking-tight text-neutral-950 mt-1">
@@ -137,19 +138,19 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
         {/* Search & Sort Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Live Search */}
-          <div className="relative w-full sm:w-60">
+          <div className="relative w-full sm:w-60 group">
             <input
               type="text"
               placeholder="Search catalog..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-neutral-300 pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-neutral-950 text-neutral-900 rounded-none"
+              className="w-full bg-white border border-neutral-300 pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-neutral-950 text-neutral-900 rounded-none shadow-2xs group-hover:border-neutral-400 transition-colors"
             />
-            <Search className="w-4 h-4 text-neutral-400 absolute left-2.5 top-2.5" />
+            <Search className="w-4 h-4 text-neutral-400 absolute left-2.5 top-2.5 group-hover:text-neutral-700 transition-colors" />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-2.5 text-neutral-400 hover:text-neutral-900"
+                className="absolute right-2 top-2.5 text-neutral-400 hover:text-neutral-900 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -160,7 +161,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-white border border-neutral-300 px-3 py-2 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-950 rounded-none cursor-pointer"
+            className="bg-white border border-neutral-300 px-3 py-2 text-xs font-medium text-neutral-900 focus:outline-none focus:border-neutral-950 rounded-none cursor-pointer shadow-2xs hover:border-neutral-400 transition-colors"
           >
             {SORT_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -173,7 +174,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
           <button
             type="button"
             onClick={() => setIsMobileFilterOpen(true)}
-            className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider"
+            className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider btn-magnetic shadow-xs cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Filters ({hasActiveFilters ? '!' : '0'})</span>
@@ -186,9 +187,9 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
         <div className="py-4 border-b border-neutral-100 flex items-center gap-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setSubcategory('All')}
-            className={`px-3 py-1 text-xs font-display font-bold uppercase tracking-wider rounded-none shrink-0 transition-colors ${
+            className={`px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wider rounded-none shrink-0 transition-all cursor-pointer ${
               subcategory === 'All'
-                ? 'bg-neutral-950 text-white'
+                ? 'bg-neutral-950 text-white shadow-xs'
                 : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
             }`}
           >
@@ -203,9 +204,9 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
               <button
                 key={sub.slug}
                 onClick={() => setSubcategory(sub.slug)}
-                className={`px-3 py-1 text-xs font-display font-bold uppercase tracking-wider rounded-none shrink-0 transition-colors ${
+                className={`px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wider rounded-none shrink-0 transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-neutral-950 text-white'
+                    ? 'bg-neutral-950 text-white shadow-xs'
                     : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                 }`}
               >
@@ -218,69 +219,69 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
 
       {/* Active Filter Chips Bar */}
       {hasActiveFilters && (
-        <div className="py-3 flex flex-wrap items-center gap-2 border-b border-neutral-100">
+        <div className="py-3 flex flex-wrap items-center gap-2 border-b border-neutral-100 animate-fade-in">
           <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 font-display">
             Active Filters:
           </span>
 
           {category !== 'All' && (
-            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5 shadow-2xs">
               Cat: {category}
-              <button onClick={() => setCategory('All')}>
+              <button onClick={() => setCategory('All')} className="cursor-pointer">
                 <X className="w-3 h-3 hover:text-amber-400" />
               </button>
             </span>
           )}
 
           {subcategory !== 'All' && (
-            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5 shadow-2xs">
               Sub: {subcategory}
-              <button onClick={() => setSubcategory('All')}>
+              <button onClick={() => setSubcategory('All')} className="cursor-pointer">
                 <X className="w-3 h-3 hover:text-amber-400" />
               </button>
             </span>
           )}
 
           {audience !== 'All' && (
-            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5 shadow-2xs">
               Audience: {audience}
-              <button onClick={() => setAudience('All')}>
+              <button onClick={() => setAudience('All')} className="cursor-pointer">
                 <X className="w-3 h-3 hover:text-amber-400" />
               </button>
             </span>
           )}
 
           {selectedSize && (
-            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5 shadow-2xs">
               Size: {selectedSize}
-              <button onClick={() => setSelectedSize(null)}>
+              <button onClick={() => setSelectedSize(null)} className="cursor-pointer">
                 <X className="w-3 h-3 hover:text-amber-400" />
               </button>
             </span>
           )}
 
           {selectedColor && (
-            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5 shadow-2xs">
               Color: {selectedColor}
-              <button onClick={() => setSelectedColor(null)}>
+              <button onClick={() => setSelectedColor(null)} className="cursor-pointer">
                 <X className="w-3 h-3 hover:text-amber-400" />
               </button>
             </span>
           )}
 
           {saleOnly && (
-            <span className="inline-flex items-center gap-1 bg-amber-500 text-neutral-950 text-[10px] font-display font-bold uppercase px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 bg-amber-500 text-neutral-950 text-[10px] font-display font-bold uppercase px-2 py-0.5 shadow-2xs">
               On Sale
-              <button onClick={() => setSaleOnly(false)}>
+              <button onClick={() => setSaleOnly(false)} className="cursor-pointer">
                 <X className="w-3 h-3 hover:text-white" />
               </button>
             </span>
           )}
 
           {inStockOnly && (
-            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-display font-bold uppercase px-2 py-0.5 shadow-2xs">
               In Stock Only
-              <button onClick={() => setInStockOnly(false)}>
+              <button onClick={() => setInStockOnly(false)} className="cursor-pointer">
                 <X className="w-3 h-3 hover:text-amber-400" />
               </button>
             </span>
@@ -288,7 +289,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
 
           <button
             onClick={resetFilters}
-            className="text-[11px] font-bold text-rose-600 hover:text-rose-800 uppercase tracking-wider ml-2 underline"
+            className="text-[11px] font-bold text-rose-600 hover:text-rose-800 uppercase tracking-wider ml-2 underline cursor-pointer"
           >
             Clear All
           </button>
@@ -309,9 +310,9 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                 <button
                   key={aud}
                   onClick={() => setAudience(aud)}
-                  className={`px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wider transition-colors ${
+                  className={`px-3 py-1.5 text-xs font-display font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     audience === aud
-                      ? 'bg-neutral-950 text-white'
+                      ? 'bg-neutral-950 text-white shadow-xs'
                       : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                   }`}
                 >
@@ -326,7 +327,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
             <h3 className="font-display text-xs font-black uppercase tracking-widest text-neutral-900 mb-3">
               Category
             </h3>
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1 text-xs">
               {['All', 'Shoes', 'Clothing', 'Watches', 'Accessories'].map((cat) => (
                 <button
                   key={cat}
@@ -334,10 +335,10 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                     setCategory(cat);
                     setSubcategory('All');
                   }}
-                  className={`w-full text-left py-1 px-2 font-display uppercase tracking-wider transition-colors flex items-center justify-between ${
+                  className={`w-full text-left py-1.5 px-2.5 font-display uppercase tracking-wider transition-all flex items-center justify-between cursor-pointer ${
                     category.toLowerCase() === cat.toLowerCase()
-                      ? 'bg-neutral-950 text-white font-bold'
-                      : 'text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50'
+                      ? 'bg-neutral-950 text-white font-bold shadow-xs'
+                      : 'text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100'
                   }`}
                 >
                   <span>{cat}</span>
@@ -356,7 +357,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
               {selectedSize && (
                 <button
                   onClick={() => setSelectedSize(null)}
-                  className="text-[10px] text-neutral-400 hover:text-neutral-900"
+                  className="text-[10px] text-neutral-400 hover:text-neutral-900 cursor-pointer"
                 >
                   Reset
                 </button>
@@ -367,10 +368,10 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                 <button
                   key={sz}
                   onClick={() => setSelectedSize(selectedSize === sz ? null : sz)}
-                  className={`py-1.5 px-2 text-xs font-display font-bold uppercase text-center border transition-colors ${
+                  className={`py-1.5 px-2 text-xs font-display font-bold uppercase text-center border transition-all cursor-pointer ${
                     selectedSize === sz
-                      ? 'bg-neutral-950 text-white border-neutral-950'
-                      : 'bg-white text-neutral-800 border-neutral-200 hover:border-neutral-900'
+                      ? 'bg-neutral-950 text-white border-neutral-950 shadow-xs'
+                      : 'bg-white text-neutral-800 border-neutral-200 hover:border-neutral-900 hover:bg-neutral-50'
                   }`}
                 >
                   {sz}
@@ -388,7 +389,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
               {selectedColor && (
                 <button
                   onClick={() => setSelectedColor(null)}
-                  className="text-[10px] text-neutral-400 hover:text-neutral-900"
+                  className="text-[10px] text-neutral-400 hover:text-neutral-900 cursor-pointer"
                 >
                   Reset
                 </button>
@@ -399,10 +400,10 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                 <button
                   key={c.name}
                   onClick={() => setSelectedColor(selectedColor === c.name ? null : c.name)}
-                  className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
+                  className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                     selectedColor === c.name
-                      ? 'ring-2 ring-neutral-950 ring-offset-2'
-                      : 'border-neutral-300 hover:scale-105'
+                      ? 'ring-2 ring-neutral-950 ring-offset-2 scale-110 shadow-xs'
+                      : 'border-neutral-300 hover:scale-110'
                   }`}
                   style={{ backgroundColor: c.hex }}
                   title={c.name}
@@ -430,14 +431,14 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                 { label: '₹10,000 - ₹18,000', val: '10000-18000' },
                 { label: 'Above ₹18,000', val: 'above-18000' },
               ].map((p) => (
-                <label key={p.val} className="flex items-center gap-2 cursor-pointer text-neutral-700">
+                <label key={p.val} className="flex items-center gap-2 cursor-pointer text-neutral-700 hover:text-neutral-950 transition-colors">
                   <input
                     type="radio"
                     name="priceRange"
                     value={p.val}
                     checked={priceRange === p.val}
                     onChange={(e) => setPriceRange(e.target.value)}
-                    className="accent-neutral-950"
+                    className="accent-neutral-950 cursor-pointer"
                   />
                   <span>{p.label}</span>
                 </label>
@@ -447,22 +448,22 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
 
           {/* Availability & Sale Toggles */}
           <div className="pt-4 border-t border-neutral-200 space-y-2 text-xs">
-            <label className="flex items-center gap-2 cursor-pointer text-neutral-800">
+            <label className="flex items-center gap-2 cursor-pointer text-neutral-800 hover:text-neutral-950 transition-colors">
               <input
                 type="checkbox"
                 checked={inStockOnly}
                 onChange={(e) => setInStockOnly(e.target.checked)}
-                className="accent-neutral-950 w-4 h-4"
+                className="accent-neutral-950 w-4 h-4 cursor-pointer"
               />
               <span className="font-bold">In-Stock Silhouettes Only</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer text-neutral-800">
+            <label className="flex items-center gap-2 cursor-pointer text-neutral-800 hover:text-neutral-950 transition-colors">
               <input
                 type="checkbox"
                 checked={saleOnly}
                 onChange={(e) => setSaleOnly(e.target.checked)}
-                className="accent-neutral-950 w-4 h-4"
+                className="accent-neutral-950 w-4 h-4 cursor-pointer"
               />
               <span className="font-bold text-amber-600">On Sale Only</span>
             </label>
@@ -473,8 +474,10 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
         <div className="lg:col-span-3">
           {products.length === 0 ? (
             /* Empty State */
-            <div className="py-20 text-center border border-dashed border-neutral-300 p-8">
-              <Frown className="w-12 h-12 text-neutral-400 mx-auto mb-3" />
+            <div className="py-20 text-center border border-dashed border-neutral-300 p-8 animate-fade-in">
+              <div className="w-16 h-16 mx-auto rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 mb-3 animate-float-slow">
+                <Frown className="w-8 h-8" />
+              </div>
               <h3 className="font-display text-xl font-bold uppercase text-neutral-950">
                 No Matching Silhouettes Found
               </h3>
@@ -483,7 +486,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
               </p>
               <button
                 onClick={resetFilters}
-                className="px-6 py-2.5 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 hover:bg-neutral-800"
+                className="px-6 py-2.5 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 hover:bg-neutral-800 transition-all btn-magnetic shadow-md cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" /> Reset Filters
               </button>
@@ -501,10 +504,10 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                 <div className="mt-12 text-center">
                   <button
                     onClick={() => setVisibleCount((prev) => prev + 12)}
-                    className="px-8 py-3.5 bg-white border border-neutral-900 text-neutral-950 font-display text-xs font-bold uppercase tracking-widest hover:bg-neutral-950 hover:text-white transition-colors inline-flex items-center gap-2"
+                    className="px-8 py-3.5 bg-white border border-neutral-900 text-neutral-950 font-display text-xs font-bold uppercase tracking-widest hover:bg-neutral-950 hover:text-white transition-all inline-flex items-center gap-2 btn-magnetic shadow-xs group cursor-pointer"
                   >
-                    Load More Silhouettes ({products.length - visibleCount} remaining){' '}
-                    <ArrowDown className="w-4 h-4" />
+                    <span>Load More Silhouettes ({products.length - visibleCount} remaining)</span>
+                    <ArrowDown className="w-4 h-4 transition-transform group-hover:translate-y-1" />
                   </button>
                 </div>
               )}
@@ -520,15 +523,15 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
           onClick={() => setIsMobileFilterOpen(false)}
         >
           <div
-            className="w-full max-w-xs bg-white h-full p-6 overflow-y-auto space-y-6 animate-slide-in"
+            className="w-full max-w-xs bg-white h-full p-6 overflow-y-auto space-y-6 animate-slide-in shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
               <h3 className="font-display text-base font-black uppercase text-neutral-950">
                 Filter & Refine
               </h3>
-              <button onClick={() => setIsMobileFilterOpen(false)}>
-                <X className="w-5 h-5 text-neutral-500" />
+              <button onClick={() => setIsMobileFilterOpen(false)} className="cursor-pointer">
+                <X className="w-5 h-5 text-neutral-500 hover:text-neutral-900" />
               </button>
             </div>
 
@@ -540,7 +543,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                   <button
                     key={aud}
                     onClick={() => setAudience(aud)}
-                    className={`px-3 py-1 text-xs font-display font-bold uppercase ${
+                    className={`px-3 py-1 text-xs font-display font-bold uppercase cursor-pointer ${
                       audience === aud ? 'bg-neutral-950 text-white' : 'bg-neutral-100 text-neutral-800'
                     }`}
                   >
@@ -558,7 +561,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                   <button
                     key={cat}
                     onClick={() => setCategory(cat)}
-                    className={`w-full text-left py-1 px-2 font-display uppercase ${
+                    className={`w-full text-left py-1 px-2 font-display uppercase cursor-pointer ${
                       category.toLowerCase() === cat.toLowerCase()
                         ? 'bg-neutral-950 text-white font-bold'
                         : 'text-neutral-700'
@@ -578,7 +581,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
                   <button
                     key={sz}
                     onClick={() => setSelectedSize(selectedSize === sz ? null : sz)}
-                    className={`py-1 text-xs font-display font-bold uppercase border ${
+                    className={`py-1 text-xs font-display font-bold uppercase border cursor-pointer ${
                       selectedSize === sz ? 'bg-neutral-950 text-white' : 'bg-white text-neutral-800'
                     }`}
                   >
@@ -590,7 +593,7 @@ export function ShopPage({ forcedCategory = null, forcedAudience = null }) {
 
             <button
               onClick={() => setIsMobileFilterOpen(false)}
-              className="w-full py-3 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider mt-6"
+              className="w-full py-3 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider mt-6 btn-magnetic shadow-lg cursor-pointer"
             >
               Apply Filters ({filteredCount})
             </button>

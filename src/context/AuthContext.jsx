@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { getFromStorage, setToStorage, removeFromStorage } from '../utils/storage';
+import { getFromStorage, setToStorage, removeFromStorage, STORAGE_KEYS } from '../utils/storage';
 import { useToast } from './ToastContext';
 
 const STORAGE_AUTH_USER = 'sjstudio_auth_user_v1';
@@ -146,6 +146,7 @@ export function AuthProvider({ children }) {
     }
     setUser(null);
     removeFromStorage(STORAGE_AUTH_USER);
+    removeFromStorage(STORAGE_KEYS.LAST_ORDER);
     showToast('Signed out', 'info');
   };
 

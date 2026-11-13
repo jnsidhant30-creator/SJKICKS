@@ -14,35 +14,60 @@ export function formatINR(amount) {
 }
 
 /**
+ * Monetary representation utilities using integer paise
+ * 1 Rupee = 100 Paise. Eliminates IEEE 754 floating point precision drift.
+ */
+export function toPaise(rupees) {
+  const num = Number(rupees);
+  if (isNaN(num)) return 0;
+  return Math.round(num * 100);
+}
+
+export function toRupees(paise) {
+  const num = Number(paise);
+  if (isNaN(num)) return 0;
+  return Math.round(num) / 100;
+}
+
+/**
  * Calculates order subtotal, shipping, discounts, and final total
  */
 export const FREE_SHIPPING_THRESHOLD = 2499;
 export const STANDARD_SHIPPING_FEE = 199;
+export const FREE_SHIPPING_THRESHOLD_PAISE = 249900;
+export const STANDARD_SHIPPING_FEE_PAISE = 19900;
 
 export function calculateOrderTotals(cartItems = [], discountPercent = 0, promoDiscount = 0) {
-  const subtotal = cartItems.reduce((acc, item) => {
-    const price = Number(item.price) || 0;
-    const qty = Number(item.quantity) || 1;
-    return acc + price * qty;
+  // Compute subtotal in exact integer paise
+  const subtotalPaise = cartItems.reduce((acc, item) => {
+    const unitPricePaise = toPaise(item.price);
+    const qty = Math.max(0, Math.floor(Number(item.quantity) || 1));
+    return acc + unitPricePaise * qty;
   }, 0);
 
-  const percentageDiscountAmount = Math.round(subtotal * (discountPercent / 100));
-  const totalDiscount = Math.min(subtotal, percentageDiscountAmount + promoDiscount);
+  const percentageDiscountPaise = Math.round(subtotalPaise * (Number(discountPercent || 0) / 100));
+  const promoDiscountPaise = toPaise(promoDiscount || 0);
+  const totalDiscountPaise = Math.min(subtotalPaise, percentageDiscountPaise + promoDiscountPaise);
 
-  const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD || cartItems.length === 0;
-  const shipping = isFreeShipping ? 0 : STANDARD_SHIPPING_FEE;
-  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const isFreeShipping = subtotalPaise >= FREE_SHIPPING_THRESHOLD_PAISE || cartItems.length === 0;
+  const shippingPaise = isFreeShipping ? 0 : STANDARD_SHIPPING_FEE_PAISE;
+  const amountToFreeShippingPaise = Math.max(0, FREE_SHIPPING_THRESHOLD_PAISE - subtotalPaise);
 
-  const total = Math.max(0, subtotal - totalDiscount + shipping);
+  const totalPaise = Math.max(0, subtotalPaise - totalDiscountPaise + shippingPaise);
 
   return {
-    subtotal,
-    discount: totalDiscount,
-    shipping,
-    total,
+    subtotal: toRupees(subtotalPaise),
+    discount: toRupees(totalDiscountPaise),
+    shipping: toRupees(shippingPaise),
+    total: toRupees(totalPaise),
     isFreeShipping,
-    amountToFreeShipping,
+    amountToFreeShipping: toRupees(amountToFreeShippingPaise),
     freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
+    // Integer paise values for exact backend/database verification
+    subtotalPaise,
+    discountPaise: totalDiscountPaise,
+    shippingPaise,
+    totalPaise,
   };
 }
 

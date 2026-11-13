@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Heart, ShoppingBag, ArrowRight } from 'lucide-react';
+import { X, Heart, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { ImageWithFallback } from './ImageWithFallback';
 import { formatINR } from '../../utils/formatters';
 
 export function WishlistModal({ isOpen, onClose }) {
-  const { wishlist, toggleWishlist, addToCart } = useCart();
+  const { wishlist, toggleWishlist } = useCart();
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -70,7 +70,7 @@ export function WishlistModal({ isOpen, onClose }) {
                 <Link
                   to="/shop"
                   onClick={onClose}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-black transition-all btn-magnetic shadow-md"
                 >
                   Explore Collection <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -79,7 +79,7 @@ export function WishlistModal({ isOpen, onClose }) {
               wishlist.map((product) => (
                 <div
                   key={product.id}
-                  className="flex gap-4 p-3 border border-neutral-200 bg-neutral-50/50 hover:border-neutral-400 transition-colors"
+                  className="flex gap-4 p-3 border border-neutral-200 bg-neutral-50/50 hover:border-neutral-950 transition-all card-lift shadow-2xs"
                 >
                   <Link
                     to={`/product/${product.id}`}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Tag, X, Check } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Tag, X, Check, Sparkles, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatINR } from '../utils/formatters';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
@@ -35,9 +35,9 @@ export function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center animate-fade-in">
         <div className="max-w-md mx-auto space-y-6">
-          <div className="w-20 h-20 mx-auto rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400">
+          <div className="w-20 h-20 mx-auto rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 animate-float-slow">
             <ShoppingBag className="w-10 h-10" />
           </div>
 
@@ -52,9 +52,10 @@ export function CartPage() {
           <div className="pt-2">
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors shadow-lg"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-all btn-magnetic shadow-lg group cursor-pointer"
             >
-              Explore Collection <ArrowRight className="w-4 h-4" />
+              <span>Explore Collection</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
@@ -67,7 +68,7 @@ export function CartPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 animate-fade-in">
       <div className="pb-6 border-b border-neutral-200">
         <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 font-display">
           Review Order
@@ -78,22 +79,23 @@ export function CartPage() {
       </div>
 
       {/* Free Shipping Progress Meter */}
-      <div className="mt-6 p-4 bg-neutral-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="space-y-1">
+      <div className="mt-6 p-4 bg-neutral-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md border border-neutral-800">
+        <div className="space-y-1.5 flex-1">
           <div className="text-xs font-display uppercase tracking-wider font-bold">
             {totals.isFreeShipping ? (
               <span className="text-emerald-400 flex items-center gap-1.5">
-                <Check className="w-4 h-4" /> You have unlocked FREE Express Shipping!
+                <Check className="w-4 h-4 animate-scale-bounce" /> You have unlocked FREE Express Shipping!
               </span>
             ) : (
-              <span>
+              <span className="flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-amber-400" />
                 Add <strong className="text-amber-400">{formatINR(totals.amountToFreeShipping)}</strong> more to get FREE shipping
               </span>
             )}
           </div>
-          <div className="w-full sm:w-64 h-1.5 bg-neutral-800 overflow-hidden">
+          <div className="w-full sm:w-80 h-2 bg-neutral-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-amber-500 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-700 rounded-full shadow-xs"
               style={{ width: `${freeShippingPercent}%` }}
             />
           </div>
@@ -110,17 +112,17 @@ export function CartPage() {
           {cart.map((item) => (
             <div
               key={item.cartItemId}
-              className="flex flex-col sm:flex-row gap-4 p-4 bg-white border border-neutral-200 hover:border-neutral-300 transition-colors"
+              className="flex flex-col sm:flex-row gap-4 p-4 bg-white border border-neutral-200 hover:border-neutral-300 transition-all card-lift shadow-2xs"
             >
               {/* Product Thumbnail */}
               <Link
                 to={`/product/${item.productId}`}
-                className="w-full sm:w-28 sm:h-28 aspect-square bg-neutral-100 overflow-hidden shrink-0 block"
+                className="w-full sm:w-28 sm:h-28 aspect-square bg-neutral-100 overflow-hidden shrink-0 block group"
               >
                 <ImageWithFallback
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </Link>
 
@@ -140,11 +142,11 @@ export function CartPage() {
                       </Link>
                     </div>
                     <div className="text-right">
-                      <div className="font-display text-base font-bold text-neutral-950">
+                      <div className="font-sans text-base font-bold text-neutral-950">
                         {formatINR(item.price * item.quantity)}
                       </div>
                       {item.quantity > 1 && (
-                        <div className="text-[11px] text-neutral-400">
+                        <div className="font-sans text-[11px] text-neutral-400">
                           {formatINR(item.price)} each
                         </div>
                       )}
@@ -153,10 +155,10 @@ export function CartPage() {
 
                   {/* Attributes badge */}
                   <div className="flex flex-wrap gap-2 mt-2 text-xs text-neutral-600 font-medium">
-                    <span className="bg-neutral-100 px-2 py-0.5 border border-neutral-200">
+                    <span className="bg-neutral-100 px-2 py-0.5 border border-neutral-200 shadow-2xs">
                       Size: <strong className="text-neutral-900">{item.size}</strong>
                     </span>
-                    <span className="bg-neutral-100 px-2 py-0.5 border border-neutral-200">
+                    <span className="bg-neutral-100 px-2 py-0.5 border border-neutral-200 shadow-2xs">
                       Color: <strong className="text-neutral-900">{item.color.name}</strong>
                     </span>
                   </div>
@@ -164,11 +166,11 @@ export function CartPage() {
 
                 {/* Bottom Controls: Quantity Stepper & Remove */}
                 <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
-                  <div className="flex items-center border border-neutral-300 bg-white">
+                  <div className="flex items-center border border-neutral-300 bg-white shadow-2xs">
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                      className="px-2.5 py-1 text-neutral-600 hover:text-neutral-950"
+                      className="px-2.5 py-1 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 transition-colors cursor-pointer"
                       aria-label="Decrease quantity"
                     >
                       <Minus className="w-3.5 h-3.5" />
@@ -179,7 +181,7 @@ export function CartPage() {
                     <button
                       type="button"
                       onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                      className="px-2.5 py-1 text-neutral-600 hover:text-neutral-950"
+                      className="px-2.5 py-1 text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 transition-colors cursor-pointer"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -189,9 +191,9 @@ export function CartPage() {
                   <button
                     type="button"
                     onClick={() => removeFromCart(item.cartItemId)}
-                    className="text-xs text-neutral-400 hover:text-rose-600 flex items-center gap-1 font-medium transition-colors"
+                    className="text-xs text-neutral-400 hover:text-rose-600 flex items-center gap-1 font-medium transition-colors cursor-pointer group"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     <span>Remove</span>
                   </button>
                 </div>
@@ -203,18 +205,20 @@ export function CartPage() {
           <div className="flex justify-between items-center pt-4">
             <Link
               to="/shop"
-              className="text-xs font-display font-bold uppercase tracking-wider text-neutral-900 hover:underline flex items-center gap-1"
+              className="text-xs font-display font-bold uppercase tracking-wider text-neutral-900 hover:underline flex items-center gap-1 group"
             >
-              ← Continue Shopping
+              <span className="transition-transform group-hover:-translate-x-1">←</span>
+              <span>Continue Shopping</span>
             </Link>
           </div>
         </div>
 
         {/* Order Summary Sidebar (4 Cols) */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white border border-neutral-200 p-6 space-y-5 shadow-xs">
-            <h2 className="font-display text-xl font-bold uppercase tracking-tight text-neutral-950 border-b border-neutral-200 pb-3">
-              Order Summary
+          <div className="bg-white border border-neutral-200 p-6 space-y-5 shadow-xs card-lift">
+            <h2 className="font-display text-xl font-bold uppercase tracking-tight text-neutral-950 border-b border-neutral-200 pb-3 flex items-center justify-between">
+              <span>Order Summary</span>
+              <Sparkles className="w-4 h-4 text-amber-500" />
             </h2>
 
             {/* Calculations Breakdown */}
@@ -236,7 +240,7 @@ export function CartPage() {
               </div>
 
               {totals.discount > 0 && (
-                <div className="flex justify-between text-emerald-600 font-semibold">
+                <div className="flex justify-between text-emerald-600 font-semibold animate-fade-in">
                   <span>Promo Discount</span>
                   <span>-{formatINR(totals.discount)}</span>
                 </div>
@@ -244,7 +248,7 @@ export function CartPage() {
 
               <div className="pt-3 border-t border-neutral-200 flex justify-between text-base font-bold text-neutral-950">
                 <span className="font-display uppercase tracking-wider">Total Due</span>
-                <span className="font-display text-xl">{formatINR(totals.total)}</span>
+                <span className="font-sans font-bold text-xl">{formatINR(totals.total)}</span>
               </div>
               <div className="text-[10px] text-neutral-400 text-right">
                 Includes all applicable GST & Pan-India taxes
@@ -254,7 +258,7 @@ export function CartPage() {
             {/* Promo Code Input */}
             <div className="pt-3 border-t border-neutral-200">
               {activePromo ? (
-                <div className="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
+                <div className="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs animate-scale-in">
                   <div className="flex items-center gap-2">
                     <Tag className="w-3.5 h-3.5 text-emerald-600" />
                     <div>
@@ -263,7 +267,7 @@ export function CartPage() {
                   </div>
                   <button
                     onClick={removePromoCode}
-                    className="text-emerald-700 hover:text-emerald-900 p-1"
+                    className="text-emerald-700 hover:text-emerald-900 p-1 cursor-pointer"
                     aria-label="Remove coupon"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -285,13 +289,13 @@ export function CartPage() {
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-neutral-900 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors"
+                      className="px-4 py-2 bg-neutral-900 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors btn-magnetic cursor-pointer"
                     >
                       Apply
                     </button>
                   </div>
                   <div className="text-[11px] text-neutral-500">
-                    Tip: Try <code className="bg-neutral-100 px-1 py-0.5 text-neutral-800 font-mono">SJFIRST</code> for 10% off
+                    Tip: Try <button type="button" onClick={() => setPromoInput('SJFIRST')} className="bg-neutral-100 hover:bg-neutral-200 px-1 py-0.5 text-neutral-800 font-mono underline cursor-pointer">SJFIRST</button> for 10% off
                   </div>
                 </form>
               )}
@@ -300,10 +304,10 @@ export function CartPage() {
             {/* Checkout CTA */}
             <button
               onClick={() => navigate('/checkout')}
-              className="w-full py-4 bg-neutral-950 text-white font-display text-sm font-black uppercase tracking-wider hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg active:scale-[0.99]"
+              className="w-full py-4 bg-neutral-950 text-white font-display text-sm font-black uppercase tracking-wider hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.99] btn-magnetic cursor-pointer group"
             >
               <span>Proceed To Checkout</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
 
             {/* Trust Assurances */}
@@ -323,3 +327,5 @@ export function CartPage() {
     </div>
   );
 }
+
+export default CartPage;

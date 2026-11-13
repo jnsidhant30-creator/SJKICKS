@@ -47,7 +47,7 @@ export function ImageWithFallback({ src, alt, className = '', ...props }) {
   return (
     <div className={`relative overflow-hidden bg-neutral-100 ${className}`}>
       {isLoading && (
-        <div className="absolute inset-0 bg-neutral-200 animate-pulse" />
+        <div className="absolute inset-0 skeleton" />
       )}
       <img
         src={src}

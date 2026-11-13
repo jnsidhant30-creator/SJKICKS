@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Compass, Home, ShoppingBag } from 'lucide-react';
+import { Compass, Home, ShoppingBag } from 'lucide-react';
 
 export function NotFoundPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 text-center">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 text-center animate-fade-in">
       <div className="max-w-xl mx-auto space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-900 text-amber-400 font-display text-xs uppercase tracking-widest">
-          <Compass className="w-3.5 h-3.5" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-900 text-amber-400 font-display text-xs uppercase tracking-widest shadow-xs">
+          <Compass className="w-3.5 h-3.5 animate-spin-slow" />
           <span>Error 404 • Missing Track</span>
         </div>
 
@@ -23,14 +23,14 @@ export function NotFoundPage() {
         <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/"
-            className="px-6 py-3.5 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors flex items-center gap-2 shadow-md"
+            className="px-6 py-3.5 bg-neutral-950 text-white font-display text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-all flex items-center gap-2 shadow-md btn-magnetic"
           >
             <Home className="w-4 h-4" /> Return Home
           </Link>
 
           <Link
             to="/shop"
-            className="px-6 py-3.5 bg-neutral-100 border border-neutral-300 text-neutral-900 font-display text-xs font-bold uppercase tracking-wider hover:bg-neutral-200 transition-colors flex items-center gap-2"
+            className="px-6 py-3.5 bg-neutral-100 border border-neutral-300 text-neutral-900 font-display text-xs font-bold uppercase tracking-wider hover:bg-neutral-200 transition-all flex items-center gap-2 btn-magnetic"
           >
             <ShoppingBag className="w-4 h-4" /> Browse All Kicks
           </Link>
